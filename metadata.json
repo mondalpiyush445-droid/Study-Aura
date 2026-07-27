@@ -1,0 +1,6 @@
+{
+  "name": "Study Aura",
+  "description": "Privacy-first offline academic app for tracking custom user courses, semesters, subjects, exam marks, AI subject quizzes with instant feedback, weekly schedules, focus timer, and credentials with biometric security.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
