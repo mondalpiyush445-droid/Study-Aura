@@ -99,9 +99,10 @@ fun NotesScreen(
     var isWikiLoading by remember { mutableStateOf(false) }
 
     // Chapter Screenshot Visualizer state
-    var chapterNameInput by remember { mutableStateOf("Calculus Integration") }
+    var chapterNameInput by remember { mutableStateOf("C Programming") }
     var visualizedNote by remember { mutableStateOf<VisualizedNoteResult?>(null) }
     var isVisualizerLoading by remember { mutableStateOf(false) }
+    var savedNoteBannerMessage by remember { mutableStateOf<String?>(null) }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -263,6 +264,110 @@ fun NotesScreen(
                 1 -> {
                     // AI Study Assistant Interface
                     Column(modifier = Modifier.weight(1f)) {
+                        // AI & Notes Connectivity Status Banner
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 6.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Psychology,
+                                    contentDescription = "AI Notes Context",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "🧠 Connected to ${notes.size} Personal Knowledge & Saved Note(s)",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = if (notes.isEmpty()) "Save personal notes or Chapter Visualizer notes to query definitions & formulas directly!"
+                                        else "Personal notes & textbook notes are indexed for instant formula & definition lookups.",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+
+                        // Search Guidance Box for Notes, Formulas & Definitions
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = "Search Guide",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "💡 How to Search Formulas & Definitions in AI Assistant:",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "• Search Formula: Type 'Formula for integration in my calculus note'\n" +
+                                            "• Search Definition: Type 'Definition of calculus in my notes'\n" +
+                                            "• Summarize Note: Type 'Summarize my calculus notes'\n" +
+                                            "*(AI will strictly extract only what you ask for without extra fluff!)*",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        // Quick Prompt Chips from Saved Notes Context
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(bottom = 8.dp)) {
+                            item {
+                                FilterChip(
+                                    selected = false,
+                                    onClick = { onSendAiPrompt("Definition of calculus in my notes") },
+                                    label = { Text("📌 Definition of Calculus", style = MaterialTheme.typography.labelSmall) },
+                                    leadingIcon = { Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(14.dp)) }
+                                )
+                            }
+                            item {
+                                FilterChip(
+                                    selected = false,
+                                    onClick = { onSendAiPrompt("Formula for integration in my calculus notes") },
+                                    label = { Text("📐 Formula for Integration", style = MaterialTheme.typography.labelSmall) }
+                                )
+                            }
+                            item {
+                                FilterChip(
+                                    selected = false,
+                                    onClick = { onSendAiPrompt("Summarize my calculus notes") },
+                                    label = { Text("📝 Summarize Calculus Note", style = MaterialTheme.typography.labelSmall) }
+                                )
+                            }
+                            items(notes.take(5)) { note ->
+                                FilterChip(
+                                    selected = false,
+                                    onClick = { onSendAiPrompt("Search formulas and definitions in my note '${note.title}'") },
+                                    label = { Text("Search '${note.title}'", style = MaterialTheme.typography.labelSmall) }
+                                )
+                            }
+                        }
+
                         LazyColumn(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.weight(1f)
@@ -326,7 +431,7 @@ fun NotesScreen(
                             OutlinedTextField(
                                 value = promptInput,
                                 onValueChange = { promptInput = it },
-                                placeholder = { Text("Ask about courses, exams, or certificates...") },
+                                placeholder = { Text("Search definition, formula, or summary in notes...", style = MaterialTheme.typography.bodyMedium) },
                                 modifier = Modifier
                                     .weight(1f)
                                     .testTag("ai_prompt_input")
@@ -599,6 +704,41 @@ fun NotesScreen(
                 3 -> {
                     // Textbook Chapter Screenshot Visualizer & Handwritten Notes
                     Column(modifier = Modifier.weight(1f)) {
+                        // Saved Note Notification Banner
+                        if (savedNoteBannerMessage != null) {
+                            Card(
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                                        Icon(
+                                            imageVector = Icons.Default.CheckCircle,
+                                            contentDescription = "Saved",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = savedNoteBannerMessage!!,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    }
+                                    TextButton(onClick = { savedNoteBannerMessage = null }) {
+                                        Text("Dismiss")
+                                    }
+                                }
+                            }
+                        }
+
                         Card(
                             shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)),
@@ -608,19 +748,19 @@ fun NotesScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
                                         imageVector = Icons.Default.CameraAlt,
-                                        contentDescription = "Chapter Screenshot",
+                                        contentDescription = "Chapter Visualizer",
                                         tint = MaterialTheme.colorScheme.primary
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "AI Textbook Screenshot & Handwritten Visualizer",
+                                        text = "AI Textbook Chapter Visualizer & Notes",
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                 }
                                 Text(
-                                    text = "Type or select a book chapter name. The AI assistant summarizes it into handwritten visual diagrams and simplified study notes.",
+                                    text = "Search any topic or chapter. The AI assistant generates handwritten notes, visual diagrams, formulas, and flowcharts for you.",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -634,7 +774,8 @@ fun NotesScreen(
                                     OutlinedTextField(
                                         value = chapterNameInput,
                                         onValueChange = { chapterNameInput = it },
-                                        label = { Text("Chapter Subject / Title") },
+                                        label = { Text("Topic or Chapter Name") },
+                                        placeholder = { Text("e.g. C Programming, DBMS, Calculus...") },
                                         singleLine = true,
                                         modifier = Modifier
                                             .weight(1f)
@@ -653,7 +794,7 @@ fun NotesScreen(
                                         },
                                         modifier = Modifier.testTag("analyze_chapter_btn")
                                     ) {
-                                        Text("Analyze & Visualize")
+                                        Text("Visualize")
                                     }
                                 }
 
@@ -661,10 +802,16 @@ fun NotesScreen(
 
                                 LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                     val presetChapters = listOf(
+                                        "C Programming",
                                         "Calculus Integration",
+                                        "Data Structures",
+                                        "DBMS & SQL",
+                                        "Computer Networks",
+                                        "Operating Systems",
+                                        "Machine Learning",
                                         "Cellular Respiration",
                                         "Electromagnetism",
-                                        "Data Structures"
+                                        "Organic Chemistry"
                                     )
                                     items(presetChapters) { name ->
                                         FilterChip(
@@ -696,7 +843,7 @@ fun NotesScreen(
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     CircularProgressIndicator()
                                     Spacer(modifier = Modifier.height(8.dp))
-                                    Text("Generating Handwritten & Visualized Notes...", style = MaterialTheme.typography.bodySmall)
+                                    Text("Generating Handwritten Notes, Formulas & Diagrams...", style = MaterialTheme.typography.bodySmall)
                                 }
                             }
                         } else if (visualizedNote != null) {
@@ -760,6 +907,7 @@ fun NotesScreen(
                                                     contentBuilder.toString(),
                                                     "Visualized, Handwritten, AI"
                                                 )
+                                                savedNoteBannerMessage = "✅ Saved '${noteRes.title}' to your notes! Connected to AI Assistant now."
                                             },
                                             modifier = Modifier.testTag("save_visual_note_btn")
                                         ) {

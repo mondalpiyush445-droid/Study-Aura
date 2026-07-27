@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,10 +21,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.EventNote
+import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -32,29 +36,151 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.R
 import com.example.data.local.AssignmentEntity
 import com.example.data.local.ClassScheduleEntity
 import com.example.data.local.ExamEntity
 import com.example.data.local.UserProfileEntity
-import com.example.ui.components.AttendanceBentoCard
 import com.example.ui.components.CgpaCalculatorDialog
 import com.example.ui.components.FocusTimerBentoCard
-import com.example.ui.components.GpaBentoCard
 import com.example.ui.viewmodel.NavigationTab
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+@Composable
+fun MotivationalQuoteCard(
+    modifier: Modifier = Modifier
+) {
+    val quotes = remember {
+        listOf(
+            "“The secret of getting ahead is getting started.” — Mark Twain",
+            "“Success is not final, failure is not fatal: it is the courage to continue that counts.” — Winston Churchill",
+            "“An investment in knowledge pays the best interest.” — Benjamin Franklin",
+            "“Believe you can and you're halfway there.” — Theodore Roosevelt",
+            "“The future belongs to those who believe in the beauty of their dreams.” — Eleanor Roosevelt",
+            "“Small daily improvements over time lead to stunning academic results.” — Robin Sharma"
+        )
+    }
+    var currentQuoteIndex by remember { mutableIntStateOf(0) }
+
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        modifier = modifier.testTag("motivational_quote_card")
+    ) {
+        Column {
+            // Inspirational Banner Image
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp)
+                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.img_motivational_banner),
+                    contentDescription = "Daily Study Motivation",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                // Overlay Tag
+                Box(
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.Black.copy(alpha = 0.6f))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                        .align(Alignment.TopStart)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = "Motivation",
+                            tint = Color(0xFFFBBF24),
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Daily Motivation",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+            // Motivational Quote Section
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.FormatQuote,
+                            contentDescription = "Quote",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Words of Wisdom",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    TextButton(
+                        onClick = {
+                            currentQuoteIndex = (currentQuoteIndex + 1) % quotes.size
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Next Quote",
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("New Quote", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = quotes[currentQuoteIndex],
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun DashboardScreen(
@@ -108,25 +234,15 @@ fun DashboardScreen(
                 }
             }
 
-            // Quick Stats Bento Grid
+            // Motivational Image/Quote Banner & Study Session Timer
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        GpaBentoCard(
-                            currentGpa = userProfile?.currentGpa ?: 3.88,
-                            targetGpa = userProfile?.targetGpa ?: 3.95,
-                            onClick = { showCgpaCalculator = true },
-                            modifier = Modifier.weight(1f)
-                        )
-                        AttendanceBentoCard(
-                            attendanceRate = userProfile?.attendanceRate ?: 94,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    // Inspirational Image & Quote Banner
+                    MotivationalQuoteCard(
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
+                    // Focus Study Session Timer (Placed directly below quote)
                     FocusTimerBentoCard(
                         secondsRemaining = timerSeconds,
                         targetMinutes = targetTimerMinutes,

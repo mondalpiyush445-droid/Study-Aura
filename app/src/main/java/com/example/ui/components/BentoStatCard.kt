@@ -139,9 +139,11 @@ fun GpaBentoCard(
 @Composable
 fun AttendanceBentoCard(
     attendanceRate: Int,
+    onClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
+        onClick = onClick,
         modifier = modifier.testTag("attendance_bento_card"),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
@@ -152,11 +154,30 @@ fun AttendanceBentoCard(
         Column(
             modifier = Modifier.padding(20.dp)
         ) {
-            Text(
-                text = "Attendance Rate",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Attendance Rate",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (attendanceRate >= 75) Color(0xFFECFDF5) else Color(0xFFFEF2F2))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = if (attendanceRate >= 75) "Above 75%" else "Below 75%",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = if (attendanceRate >= 75) Color(0xFF059669) else Color(0xFFDC2626)
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -164,7 +185,7 @@ fun AttendanceBentoCard(
                 text = "$attendanceRate%",
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold,
-                color = if (attendanceRate >= 90) Color(0xFF10B981) else MaterialTheme.colorScheme.error
+                color = if (attendanceRate >= 75) Color(0xFF10B981) else Color(0xFFEF4444)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -175,16 +196,17 @@ fun AttendanceBentoCard(
                     .fillMaxWidth()
                     .height(8.dp)
                     .clip(RoundedCornerShape(4.dp)),
-                color = Color(0xFF10B981),
+                color = if (attendanceRate >= 75) Color(0xFF10B981) else Color(0xFFEF4444),
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Required: 75% • Perfect Record",
+                text = "Tap to open Weekly Checklist & Calendar Tracker →",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }

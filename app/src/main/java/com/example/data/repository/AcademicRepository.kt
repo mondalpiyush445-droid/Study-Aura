@@ -74,6 +74,10 @@ class AcademicRepository(private val dao: AcademicDao) {
         dao.insertNote(note)
     }
 
+    suspend fun updateNote(note: StudyNoteEntity) {
+        dao.insertNote(note)
+    }
+
     suspend fun deleteNote(note: StudyNoteEntity) {
         dao.deleteNote(note)
     }

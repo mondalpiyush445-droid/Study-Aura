@@ -114,7 +114,7 @@ fun AcademicHubApp(viewModel: AcademicViewModel) {
                             title = when (currentTab) {
                                 NavigationTab.DASHBOARD -> "Study Aura"
                                 NavigationTab.COURSE_CURRICULUM -> "My Course & Syllabus"
-                                NavigationTab.SCHEDULE -> "Weekly Schedule"
+                                NavigationTab.SCHEDULE -> "Schedule & 75% Attendance Tracker"
                                 NavigationTab.ASSIGNMENTS -> "Assignments"
                                 NavigationTab.EXAMS -> "Exams & Midterms"
                                 NavigationTab.CERTIFICATES -> "Credentials"
@@ -230,6 +230,7 @@ fun AcademicHubApp(viewModel: AcademicViewModel) {
                                         onAddNote = { title, course, content, tags ->
                                             viewModel.addNote(title, course, content, tags)
                                         },
+                                        onUpdateNote = { viewModel.updateNote(it) },
                                         onDeleteNote = { viewModel.deleteNote(it) }
                                     )
                                 }

@@ -62,7 +62,7 @@ data class NavItem(
 val navItems = listOf(
     NavItem(NavigationTab.DASHBOARD, "Dashboard", "Overview & Bento Stats", Icons.Default.GridView),
     NavItem(NavigationTab.COURSE_CURRICULUM, "My Course & Syllabus", "4-Year BCA, Subjects & Exam Marks", Icons.Default.School),
-    NavItem(NavigationTab.SCHEDULE, "Weekly Schedule", "Timetable & Google Cal Sync", Icons.Default.CalendarToday),
+    NavItem(NavigationTab.SCHEDULE, "Schedule & Attendance", "Checklist, 75% Tracker & Cal", Icons.Default.CalendarToday),
     NavItem(NavigationTab.ASSIGNMENTS, "Assignments & Tasks", "Syllabus Progress", Icons.Default.Assignment),
     NavItem(NavigationTab.EXAMS, "Exams & Midterms", "Countdown & Locations", Icons.Default.EventNote),
     NavItem(NavigationTab.CERTIFICATES, "Credentials & Certificates", "Verified Honors", Icons.Default.WorkspacePremium),
@@ -142,7 +142,7 @@ fun AcademicSideDrawerSheet(
                                 .padding(horizontal = 8.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = "GPA: $currentGpa / 4.0",
+                                text = "Student Profile",
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onPrimary

@@ -386,6 +386,12 @@ class AcademicViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun updateNote(note: StudyNoteEntity) {
+        viewModelScope.launch {
+            repository.updateNote(note)
+        }
+    }
+
     fun deleteNote(note: StudyNoteEntity) {
         viewModelScope.launch { repository.deleteNote(note) }
     }
@@ -399,7 +405,8 @@ class AcademicViewModel(application: Application) : AndroidViewModel(application
         _isAiLoading.value = true
 
         viewModelScope.launch {
-            val reply = GeminiStudyAssistant.queryAssistant(promptText)
+            val currentNotes = notes.value
+            val reply = GeminiStudyAssistant.queryAssistant(promptText, currentNotes)
             val aiMsg = ChatMessage(sender = "AI", text = reply)
             _aiMessages.value = _aiMessages.value + aiMsg
             _isAiLoading.value = false
